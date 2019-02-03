@@ -75,7 +75,7 @@ app.get("/authors", (req, res) => {
 });
 
 //----------------GOOD
-//----------------POST REQUEST (BLOG POSTS AND AUTHOR)
+//----------------POST REQUEST (NEW BLOG POSTS WITH AUTHOR)
 app.post("/posts", (req, res) => {
   const requiredFields = ["title", "content", "author_id"];
   for (let i = 0; i < requiredFields.length; i++) {
@@ -121,7 +121,8 @@ app.post("/posts", (req, res) => {
       });
   });
 
-//----------------POST REQUEST (AUTHORS)
+//----------------GOOD
+//----------------POST REQUEST (NEW AUTHORS)
 app.post("/authors", (req, res) => {
   const requiredFields = ["firstName", "lastName", "userName"];
   for (let i = 0; i < requiredFields.length; i++) {
@@ -166,7 +167,7 @@ app.post("/authors", (req, res) => {
 });
 
 //----------------GOOD
-//----------------PUT REQUEST (BLOG POST)
+//----------------PUT REQUEST (EDIT BLOG POST)
 app.put("/posts/:id", (req, res) => {
   if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
     res.status(400).json({
@@ -188,7 +189,7 @@ app.put("/posts/:id", (req, res) => {
     .catch(err => res.status(500).json({ message: "something went terribly wrong" }));
 });
 
-//----------------PUT REQUEST (AUTHOR)
+//----------------PUT REQUEST (EDIT AUTHOR)
 app.put("/authors/:id", (req, res) => {
   if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
     res.status(400).json({
@@ -229,7 +230,7 @@ app.put("/authors/:id", (req, res) => {
 
 
 //----------------GOOD
-//----------------DELETE REQUEST SPECIFIC POST
+//----------------DELETE REQUEST (SPECIFIC POST)
 app.delete("/posts/:id", (req, res) => {
   BlogPost
     .findByIdAndRemove(req.params.id)
@@ -243,7 +244,7 @@ app.delete("/posts/:id", (req, res) => {
 });
 
 //----------------GOOD
-//----------------DELETE REQUEST SPECIFIC AUTHOR AND THEIR POSTS
+//----------------DELETE REQUEST (SPECIFIC AUTHOR AND THEIR POSTS)
 app.delete("/authors/:id", (req, res) => {
   BlogPost
     .remove({ author: req.params.id })
