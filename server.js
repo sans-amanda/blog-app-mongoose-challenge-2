@@ -15,12 +15,20 @@ app.use(express.json());
 
 //----------------GOOD
 //----------------GET REQUEST (BLOG POSTS ALL)
+//----------------add prehook in model.js for .find()
 app.get("/posts", (req, res) => {
   BlogPost
     .find()
     .then(posts => {
-      res.json(posts.map(post => post.serialize()));
-    })
+      res.json(posts.map(post => {
+        return {
+          id: post._id,
+          author: post.authorName,
+          title: post.content,
+          content: post.title 
+        };
+      }));
+    })  
     .catch(err => {
       console.error(err);
       res.status(500).json({ error: "something went terribly wrong" });
@@ -32,7 +40,15 @@ app.get("/posts", (req, res) => {
 app.get("/posts/:id", (req, res) => {
   BlogPost
     .findById(req.params.id)
-    .then(post => res.json(post.serialize()))
+    .then(post => {
+      res.json({
+        id: post._id,
+        author: post.authorName,
+        title: post.content,
+        content: post.title,
+        comment: post.comments
+      });
+    })
     .catch(err => {
       console.error(err);
       res.status(500).json({ error: "something went terribly wrong" });
@@ -41,13 +57,27 @@ app.get("/posts/:id", (req, res) => {
 
 //----------------GET REQUEST (AUTHORS)
 app.get("/authors", (req, res) => {
-  
+  Author
+  .find()
+  .then(authors => {
+    res.json(authors.map(author => {
+      return {
+        id: author._id,
+        name: `${author.firstName} ${author.lastName}`,
+        userName: author.userName
+      };
+    }));
+  })
+  .catch(err => {
+    console.error(err);
+    res.status(500).json({ error: 'something went terribly wrong' });
+  });
 });
 
 //----------------GOOD
 //----------------POST REQUEST (BLOG POSTS)
 app.post('/posts', (req, res) => {
-  const requiredFields = ["title", "content", "author"];
+  const requiredFields = ["title", "content", "author_id"];
   for (let i = 0; i < requiredFields.length; i++) {
     const field = requiredFields[i];
     if (!(field in req.body)) {
@@ -57,17 +87,27 @@ app.post('/posts', (req, res) => {
     }
   }
 
-  BlogPost
-    .create({
-      title: req.body.title,
-      content: req.body.content,
-      author: req.body.author
-    })
-    .then(blogPost => res.status(201).json(blogPost.serialize()))
-    .catch(err => {
-      console.error(err);
-      res.status(500).json({ error: "something went terribly wrong" });
-    });
+  Author
+    .findById(req.body.author_id)
+    .then(author => {
+      if (author) {
+        BlogPost
+          .create({
+            title: req.body.title,
+            content: req.body.content,
+            author: req.body.author
+          })
+          .then(blogPost => res.status(201).json({
+            id: post._id,
+            author: `${author.firstName} ${author.lastName}`,
+            title: post.content,
+            content: post.title,
+            comment: post.comments
+          }))
+          .catch(err => {
+            console.error(err);
+            res.status(500).json({ error: "something went terribly wrong" });
+          });
 
 });
 
