@@ -75,7 +75,7 @@ app.get("/authors", (req, res) => {
 });
 
 //----------------GOOD
-//----------------POST REQUEST (BLOG POSTS)
+//----------------POST REQUEST (BLOG POSTS AND AUTHOR)
 app.post('/posts', (req, res) => {
   const requiredFields = ["title", "content", "author_id"];
   for (let i = 0; i < requiredFields.length; i++) {
@@ -108,8 +108,18 @@ app.post('/posts', (req, res) => {
             console.error(err);
             res.status(500).json({ error: "something went terribly wrong" });
           });
-
-});
+        }
+        else {
+          const message = `No Author`;
+          console.error(message);
+          return res.status(400).send(message);
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        res.status(500).json({ error: "something went terribly wrong"  });
+      });
+  });
 
 //----------------POST REQUEST (AUTHORS)
 app.post('/posts', (req, res) => {
@@ -162,6 +172,25 @@ app.delete("/posts/:id", (req, res) => {
     .findByIdAndRemove(req.params.id)
     .then(() => {
       res.status(204).json({ message: "success" });
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({ error: "something went terribly wrong" });
+    });
+});
+
+//----------------GOOD
+//----------------DELETE REQUEST SPECIFIC AUTHOR AND THEIR POSTS
+app.delete("/authors/:id", (req, res) => {
+  BlogPost
+    .remove({ author: req.params.id })
+    .then(() => {
+      Author
+        .findByIdAndRemove(req.params.id)
+        .then(() => {
+          console.log(`Deleted blog posts by and profile \`${req.params.id}\``);
+          res.status(204).json({ message: "success" });
+        });
     })
     .catch(err => {
       console.error(err);
